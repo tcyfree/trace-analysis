@@ -118,7 +118,7 @@ int main(int argc, char *argv[])
     fprintf(fp, "write size(KB): %.4f\n", (double)ssd->write_size_trace / ssd->write_req_trace / 2);
     fclose(fp);
 
-    return 1;
+    return 0;
     /*     _CrtDumpMemoryLeaks(); */
 }
 
