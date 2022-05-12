@@ -15,7 +15,7 @@ function runTrace() {
     saveFile1=${line##*/}
     saveFile2=${saveFile1%%.*}
 
-    echo $saveFile2 >> out-batch.txt
+    echo $saveFile2"," >> out-batch.txt
     ./ssd 1  ../trace/$line   
     cat trace-analysis.txt >> out-batch.txt
 
