@@ -115,6 +115,7 @@ int main(int argc, char *argv[])
     // fprintf(ssd->outputfile,"erase: %13d\n",erase);
     // fprintf(fp, "request count: %lld\n", ssd->read_req_trace+ssd->write_req_trace);
     fprintf(fp, "write ratio: %.4f,", (double) ssd->write_req_trace / (ssd->read_req_trace + ssd->write_req_trace));
+    fprintf(fp, "total request num: %d,", ssd->read_req_trace + ssd->write_req_trace);
     fprintf(fp, "average write size(KB): %.4f\n", (double)ssd->write_size_trace / ssd->write_req_trace / 2);
     fclose(fp);
 
