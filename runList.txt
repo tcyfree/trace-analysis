@@ -101,7 +101,6 @@ src2_2.csv
 stg_0.csv
 stg_0_4.csv
 stg_1.csv
-ts_0
 ts_0.csv
 usr_0.csv
 usr_1.csv
