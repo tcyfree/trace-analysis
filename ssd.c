@@ -77,9 +77,12 @@ int main(int argc, char *argv[])
     }
     //写入文件记录
     FILE *fp = NULL;
-    FILE *fp_w = NULL;
-    fp = fopen("./trace_r.csv", "w+");
-    fp_w = fopen("./trace_w.csv", "w+");
+    //获取trace名称
+    char *ret = strrchr(ssd->tracefilename, '/') + 1;
+    //打开文件
+    fp = fopen(ret, "w+");
+    fprintf(fp, ret);
+    fprintf(fp, "\n");
     fseek(ssd->tracefile, 0, SEEK_SET);
     while (!feof(ssd->tracefile))
     {
@@ -127,6 +130,7 @@ int main(int argc, char *argv[])
 
     int flag_r = 0;
     int flag_w = 0;
+    fprintf(fp, "read\n");
     for (int i = 0; i < len; i++)
     {
         if (sizeR[i][0] == 0)
@@ -138,6 +142,7 @@ int main(int argc, char *argv[])
         printf("%d %d\n", sizeR[i][0], sizeR[i][1]);
         fprintf(fp, "%d, %d\n", sizeR[i][0], sizeR[i][1]);
     }
+    fprintf(fp, "write\n");
     for (int i = 0; i < len; i++)
     {
         if (sizeW[i][0] == 0)
@@ -146,12 +151,11 @@ int main(int argc, char *argv[])
             break;
         }
         printf("%d %d\n", sizeW[i][0], sizeW[i][1]);
-        fprintf(fp_w, "%d, %d\n", sizeW[i][0], sizeW[i][1]);
+        fprintf(fp, "%d, %d\n", sizeW[i][0], sizeW[i][1]);
     }
     printf("flag_r %d  flag_w %d\n", flag_r, flag_w);
 
     fclose(fp);
-    fclose(fp_w);
 
     return 0;
     /*     _CrtDumpMemoryLeaks(); */
