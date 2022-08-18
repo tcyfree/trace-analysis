@@ -1,2 +1,3 @@
 *.csv
 !trace-analysis/*.csv
+.vscode

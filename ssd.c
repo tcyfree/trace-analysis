@@ -83,9 +83,13 @@ int main(int argc, char *argv[])
     char tracename[16];
     sprintf(tracename,"%s%s", "trace-analysis/", ret);
     fp = fopen(tracename, "w+");
-    fprintf(fp, tracename);
+    fprintf(fp, ret);
     fprintf(fp, "\n");
     fseek(ssd->tracefile, 0, SEEK_SET);
+    unsigned int totalReadReq = 0;
+    unsigned int totalWriteReq = 0;
+    unsigned int totalWriteSize = 0;
+    unsigned int totalReadSize = 0;
     while (!feof(ssd->tracefile))
     {
         filepoint = ftell(ssd->tracefile);
@@ -95,6 +99,8 @@ int main(int argc, char *argv[])
         // 1为读 0为写
         if (ope == 1)
         {
+            totalReadReq++;
+            totalReadSize += size;
             for (int i = 0; i < len; i++)
             {
                 if (sizeR[i][0] == size)
@@ -112,6 +118,8 @@ int main(int argc, char *argv[])
         }
         else
         {
+            totalWriteReq++;
+            totalWriteSize += size;
             for (int i = 0; i < len; i++)
             {
                 if (sizeW[i][0] == size)
@@ -129,8 +137,25 @@ int main(int argc, char *argv[])
         }
     }
 
+    // caculate characterizes for trace
+    fprintf(fp, "all of req: %d\n", totalReadReq + totalWriteReq);
+    fprintf(fp, "write ratio: %.4f\n", (float)totalWriteReq/(totalReadReq + totalWriteReq));
+    fprintf(fp, "write avg size(KB): %.2f\n", (double)totalReadSize / totalReadReq / 2);
+    fprintf(fp, "read avg size(KB): %.2f\n", (double)totalWriteSize / totalWriteReq / 2);
+
     int flag_r = 1;
     int flag_w = 1;
+    fprintf(fp, "write\n");
+    for (int i = 0; i < len; i++)
+    {
+        if (sizeW[i][0] == 0)
+        {
+            flag_w = 0;
+            break;
+        }
+        printf("%d %d\n", sizeW[i][0], sizeW[i][1]);
+        fprintf(fp, "%d, %d\n", sizeW[i][0], sizeW[i][1]);
+    }
     fprintf(fp, "read\n");
     for (int i = 0; i < len; i++)
     {
@@ -143,17 +168,7 @@ int main(int argc, char *argv[])
         printf("%d %d\n", sizeR[i][0], sizeR[i][1]);
         fprintf(fp, "%d, %d\n", sizeR[i][0], sizeR[i][1]);
     }
-    fprintf(fp, "write\n");
-    for (int i = 0; i < len; i++)
-    {
-        if (sizeW[i][0] == 0)
-        {
-            flag_w = 0;
-            break;
-        }
-        printf("%d %d\n", sizeW[i][0], sizeW[i][1]);
-        fprintf(fp, "%d, %d\n", sizeW[i][0], sizeW[i][1]);
-    }
+    
     printf("flag_r %d  flag_w %d\n", flag_r, flag_w);
 
     fclose(fp);
