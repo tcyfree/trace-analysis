@@ -80,8 +80,10 @@ int main(int argc, char *argv[])
     //获取trace名称
     char *ret = strrchr(ssd->tracefilename, '/') + 1;
     //打开文件
-    fp = fopen(ret, "w+");
-    fprintf(fp, ret);
+    char tracename[16];
+    sprintf(tracename,"%s%s", "trace-analysis/", ret);
+    fp = fopen(tracename, "w+");
+    fprintf(fp, tracename);
     fprintf(fp, "\n");
     fseek(ssd->tracefile, 0, SEEK_SET);
     while (!feof(ssd->tracefile))
@@ -106,7 +108,6 @@ int main(int argc, char *argv[])
                     sizeR[i][1]++;
                     break;
                 }
-                
             }
         }
         else
@@ -128,14 +129,14 @@ int main(int argc, char *argv[])
         }
     }
 
-    int flag_r = 0;
-    int flag_w = 0;
+    int flag_r = 1;
+    int flag_w = 1;
     fprintf(fp, "read\n");
     for (int i = 0; i < len; i++)
     {
         if (sizeR[i][0] == 0)
         {
-            flag_r = 1;
+            flag_r = 0;
             break;
         }
         
@@ -147,7 +148,7 @@ int main(int argc, char *argv[])
     {
         if (sizeW[i][0] == 0)
         {
-            flag_w = 1;
+            flag_w = 0;
             break;
         }
         printf("%d %d\n", sizeW[i][0], sizeW[i][1]);
