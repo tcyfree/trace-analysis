@@ -1,0 +1,13 @@
+web2_pre.csv
+all of req: 4579810
+write ratio: 0.0002
+write avg size(KB): 15.07
+read avg size(KB): 8.10
+write
+16, 978
+32, 12
+read
+48, 406838
+16, 2763480
+64, 912770
+32, 495732

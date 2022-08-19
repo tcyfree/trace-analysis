@@ -1,0 +1,18 @@
+wdev_1.csv
+all of req: 1056
+write ratio: 1.0000
+write avg size(KB): -nan
+read avg size(KB): 5.18
+write
+8, 955
+24, 38
+112, 2
+120, 11
+16, 41
+7, 1
+1, 1
+40, 1
+3, 1
+5, 1
+32, 4
+read

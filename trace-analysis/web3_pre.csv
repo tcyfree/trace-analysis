@@ -1,0 +1,15 @@
+web3_pre.csv
+all of req: 4261710
+write ratio: 0.0003
+write avg size(KB): 15.40
+read avg size(KB): 26.48
+write
+16, 1249
+32, 8
+128, 2
+46240, 1
+read
+32, 480822
+16, 2493491
+64, 890317
+48, 395816

@@ -1,0 +1,16 @@
+web1_pre.csv
+all of req: 1055449
+write ratio: 0.0002
+write avg size(KB): 15.15
+read avg size(KB): 8.60
+write
+16, 208
+32, 2
+128, 2
+read
+16, 633017
+64, 212700
+32, 114640
+48, 94854
+1, 24
+2222, 2
