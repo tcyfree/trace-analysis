@@ -153,8 +153,10 @@ int main(int argc, char *argv[])
             flag_w = 0;
             break;
         }
-        printf("%d %d\n", sizeW[i][0], sizeW[i][1]);
-        fprintf(fp, "%d, %d\n", sizeW[i][0], sizeW[i][1]);
+        float w_size = sizeW[i][0];
+        float w_sieze_count = sizeW[i][1];
+        printf("%.1f %.1f\n", w_size / 2, w_sieze_count / 2);
+        fprintf(fp, "%.1f %.1f\n", w_size / 2, w_sieze_count / 2);
     }
     fprintf(fp, "read\n");
     for (int i = 0; i < len; i++)
@@ -164,9 +166,10 @@ int main(int argc, char *argv[])
             flag_r = 0;
             break;
         }
-        
-        printf("%d %d\n", sizeR[i][0], sizeR[i][1]);
-        fprintf(fp, "%d, %d\n", sizeR[i][0], sizeR[i][1]);
+        float r_size = sizeR[i][0];
+        float r_sieze_count = sizeR[i][1];
+        printf("%.1f %.1f\n", r_size/2, r_sieze_count/2);
+        fprintf(fp, "%.1f %.1f\n", r_size/2, r_sieze_count/2);
     }
     
     printf("flag_r %d  flag_w %d\n", flag_r, flag_w);

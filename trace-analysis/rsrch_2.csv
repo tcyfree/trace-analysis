@@ -4,8 +4,8 @@ write ratio: 0.3431
 write avg size(KB): 4.00
 read avg size(KB): 4.25
 write
-16, 4474
-8, 66749
-24, 1
+8.0 2237.0
+4.0 33374.5
+12.0 0.5
 read
-8, 136364
+4.0 68182.0
