@@ -138,10 +138,10 @@ int main(int argc, char *argv[])
     }
 
     // caculate characterizes for trace
-    fprintf(fp, "all of req: %d\n", totalReadReq + totalWriteReq);
-    fprintf(fp, "write ratio: %.4f\n", (float)totalWriteReq/(totalReadReq + totalWriteReq));
-    fprintf(fp, "write avg size(KB): %.2f\n", (double)totalReadSize / totalReadReq / 2);
-    fprintf(fp, "read avg size(KB): %.2f\n", (double)totalWriteSize / totalWriteReq / 2);
+    // fprintf(fp, "all of req: %d\n", totalReadReq + totalWriteReq);
+    // fprintf(fp, "write ratio: %.4f\n", (float)totalWriteReq/(totalReadReq + totalWriteReq));
+    // fprintf(fp, "write avg size(KB): %.2f\n", (double)totalReadSize / totalReadReq / 2);
+    // fprintf(fp, "read avg size(KB): %.2f\n", (double)totalWriteSize / totalWriteReq / 2);
 
     int flag_r = 1;
     int flag_w = 1;
@@ -154,9 +154,9 @@ int main(int argc, char *argv[])
             break;
         }
         float w_size = sizeW[i][0];
-        float w_sieze_count = sizeW[i][1];
-        printf("%.1f %.1f\n", w_size / 2, w_sieze_count / 2);
-        fprintf(fp, "%.1f %.1f\n", w_size / 2, w_sieze_count / 2);
+        int w_sieze_count = sizeW[i][1];
+        printf("%.1f, %d\n", w_size / 2, w_sieze_count);
+        fprintf(fp, "%.1f, %d\n", w_size / 2, w_sieze_count);
     }
     fprintf(fp, "read\n");
     for (int i = 0; i < len; i++)
@@ -167,9 +167,9 @@ int main(int argc, char *argv[])
             break;
         }
         float r_size = sizeR[i][0];
-        float r_sieze_count = sizeR[i][1];
-        printf("%.1f %.1f\n", r_size/2, r_sieze_count/2);
-        fprintf(fp, "%.1f %.1f\n", r_size/2, r_sieze_count/2);
+        int r_sieze_count = sizeR[i][1];
+        printf("%.1f, %d\n", r_size/2, r_sieze_count);
+        fprintf(fp, "%.1f, %d\n", r_size/2, r_sieze_count);
     }
     
     printf("flag_r %d  flag_w %d\n", flag_r, flag_w);

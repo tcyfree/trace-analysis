@@ -1,12 +1,8 @@
 wdev_3.csv
-all of req: 683
-write ratio: 0.9824
-write avg size(KB): 63.33
-read avg size(KB): 4.35
 write
-4.0 312.5
-8.0 22.5
-60.0 0.5
+4.0, 625
+8.0, 45
+60.0, 1
 read
-64.0 5.5
-56.0 0.5
+64.0, 11
+56.0, 1

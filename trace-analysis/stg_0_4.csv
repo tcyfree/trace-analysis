@@ -1,8 +1,4 @@
 stg_0_4.csv
-all of req: 1
-write ratio: 1.0000
-write avg size(KB): -nan
-read avg size(KB): 1742409996.00
 write
--405073664.0 0.5
+451686656.0, 1
 read
