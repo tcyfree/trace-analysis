@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
     long filepoint; //文件指针偏移量
     char buffer[200];
     int len = 600000;
-    int arr[len][3];
+    unsigned int arr[len][3]; 
     for (int i = 0; i < len; i++)
     {
         arr[i][0] = 0;
@@ -75,64 +75,52 @@ int main(int argc, char *argv[])
     //获取trace名称
     char *ret = strrchr(ssd->tracefilename, '/') + 1;
     //打开文件
-    char tracename[16];
+    char tracename[32];
     sprintf(tracename,"%s%s", "trace-update/", ret);
     fp = fopen(tracename, "w+");
     fprintf(fp, ret);
     fprintf(fp, "\n");
     fseek(ssd->tracefile, 0, SEEK_SET);
-    while (!feof(ssd->tracefile))
+    int length = 0;
+    while (!feof(ssd->tracefile) && length < len)
     {
         filepoint = ftell(ssd->tracefile);
         fgets(buffer, 200, ssd->tracefile);                                                    //从trace文件中读取一行内容至缓冲区
         sscanf(buffer, "%lld %d %d %d %d %d", &time_t, &device, &lsn, &size, &ope, &priority); //按照I/O格式将每行读取的内容中的参数读到time_t，device等中
         // printf("%lld  %d %d %d %d %d\n", time_t, device, lsn, size, ope, priority);
         // 1为读 0为写
+        int exit = 0;
         for (int i = 0; i < len; i++)
         {
+            if (arr[i][0] == 0)
+            {
+                break;
+            }
             if (arr[i][0] == lsn)
             {
-                if (arr[i][1] == ope & arr[i][2] != 1)
+                exit = 1;
+                if (ope == 1 && arr[i][1] == 1 && arr[i][2] == 1)
                 {
-                    continue;
+                    arr[i][2] = 2;
                 }
-                else
+                else if (ope == 0 && arr[i][1] == 0 && arr[i][2] == 1)
                 {
-                    if (ope == 1)
-                    {
-                        if (arr[i][2] == 1 || arr[i][2] == 2)
-                        {
-                            arr[i][1] = ope;
-                            arr[i][2] = 2;
-                        }
-                        else
-                        {
-                            arr[i][1] = ope;
-                            arr[i][2] = 4;
-                        }
-                    }
-                    else
-                    {
-                        if (arr[i][2] == 1 || arr[i][2] == 3)
-                        {
-                            arr[i][2]++;
-                            arr[i][3] = 3;
-                        }
-                        else
-                        {
-                            arr[i][1] = ope;
-                            arr[i][2] = 4;
-                        }
-                    }
+                    arr[i][2] = 3;
                 }
+                else if (arr[i][2] != 4)
+                {
+                    arr[i][2] = 4;
+                }
+                break;
             }
-            else
-            {
-                arr[i][0] = lsn;
-                arr[i][1] = 0; //当读请求所读得页里面没有数据时，需要预处理往该页里面写数据，以保证能读到数据。所以统一为写
-                arr[i][2] = 1;
-            }
-            break;
+    
+        }
+        if (!exit)
+        {
+            arr[length][0] = lsn;
+            arr[length][1] = ope; // 可能是1/0，ssdsim有预处理解决读问题
+            arr[length][2] = 1;
+            length++;
         }
     }
     for (int i = 0; i < len; i++)
@@ -141,8 +129,8 @@ int main(int argc, char *argv[])
         {
             break;
         }
-        printf("%d, %d\n", arr[i][0], arr[i][2]);
-        fprintf(fp, "%d, %d\n", arr[i][0], arr[i][2]);
+        printf("%ld, %d\n", arr[i][0], arr[i][2]);
+        fprintf(fp, "%ld, %d\n", arr[i][0], arr[i][2]);
     }
 
     fclose(fp);
