@@ -51,18 +51,13 @@ int main(int argc, char *argv[])
     //*********************************************
     long filepoint; //文件指针偏移量
     char buffer[200];
-    int len = 512;
-    int sizeR[len][2];
-    int sizeW[len][2];
+    int len = 600000;
+    int arr[len][3];
     for (int i = 0; i < len; i++)
     {
-        sizeR[i][0] = 0;
-        sizeR[i][1] = 0;
-    }
-    for (int i = 0; i < len; i++)
-    {
-        sizeW[i][0] = 0;
-        sizeW[i][1] = 0;
+        arr[i][0] = 0;
+        arr[i][1] = 0;
+        arr[i][2] = 0;
     }
     int device, size, ope, large_lsn;
     int priority;
@@ -81,15 +76,11 @@ int main(int argc, char *argv[])
     char *ret = strrchr(ssd->tracefilename, '/') + 1;
     //打开文件
     char tracename[16];
-    sprintf(tracename,"%s%s", "trace-analysis/", ret);
+    sprintf(tracename,"%s%s", "trace-update/", ret);
     fp = fopen(tracename, "w+");
     fprintf(fp, ret);
     fprintf(fp, "\n");
     fseek(ssd->tracefile, 0, SEEK_SET);
-    unsigned int totalReadReq = 0;
-    unsigned int totalWriteReq = 0;
-    unsigned int totalWriteSize = 0;
-    unsigned int totalReadSize = 0;
     while (!feof(ssd->tracefile))
     {
         filepoint = ftell(ssd->tracefile);
@@ -97,82 +88,62 @@ int main(int argc, char *argv[])
         sscanf(buffer, "%lld %d %d %d %d %d", &time_t, &device, &lsn, &size, &ope, &priority); //按照I/O格式将每行读取的内容中的参数读到time_t，device等中
         // printf("%lld  %d %d %d %d %d\n", time_t, device, lsn, size, ope, priority);
         // 1为读 0为写
-        if (ope == 1)
+        for (int i = 0; i < len; i++)
         {
-            totalReadReq++;
-            totalReadSize += size;
-            for (int i = 0; i < len; i++)
+            if (arr[i][0] == lsn)
             {
-                if (sizeR[i][0] == size)
+                if (arr[i][1] == ope & arr[i][2] != 1)
                 {
-                    sizeR[i][1]++;
-                    break;
+                    continue;
                 }
-                else if (sizeR[i][0] == 0)
+                else
                 {
-                    sizeR[i][0] = size;
-                    sizeR[i][1]++;
-                    break;
+                    if (ope == 1)
+                    {
+                        if (arr[i][2] == 1 || arr[i][2] == 2)
+                        {
+                            arr[i][1] = ope;
+                            arr[i][2] = 2;
+                        }
+                        else
+                        {
+                            arr[i][1] = ope;
+                            arr[i][2] = 4;
+                        }
+                    }
+                    else
+                    {
+                        if (arr[i][2] == 1 || arr[i][2] == 3)
+                        {
+                            arr[i][2]++;
+                            arr[i][3] = 3;
+                        }
+                        else
+                        {
+                            arr[i][1] = ope;
+                            arr[i][2] = 4;
+                        }
+                    }
                 }
             }
-        }
-        else
-        {
-            totalWriteReq++;
-            totalWriteSize += size;
-            for (int i = 0; i < len; i++)
+            else
             {
-                if (sizeW[i][0] == size)
-                {
-                    sizeW[i][1]++;
-                    break;
-                }
-                else if (sizeW[i][0] == 0)
-                {
-                    sizeW[i][0] = size;
-                    sizeW[i][1]++;
-                    break;
-                }
+                arr[i][0] = lsn;
+                arr[i][1] = 0; //当读请求所读得页里面没有数据时，需要预处理往该页里面写数据，以保证能读到数据。所以统一为写
+                arr[i][2] = 1;
             }
-        }
-    }
-
-    // caculate characterizes for trace
-    // fprintf(fp, "all of req: %d\n", totalReadReq + totalWriteReq);
-    // fprintf(fp, "write ratio: %.4f\n", (float)totalWriteReq/(totalReadReq + totalWriteReq));
-    // fprintf(fp, "write avg size(KB): %.2f\n", (double)totalReadSize / totalReadReq / 2);
-    // fprintf(fp, "read avg size(KB): %.2f\n", (double)totalWriteSize / totalWriteReq / 2);
-
-    int flag_r = 1;
-    int flag_w = 1;
-    fprintf(fp, "write\n");
-    for (int i = 0; i < len; i++)
-    {
-        if (sizeW[i][0] == 0)
-        {
-            flag_w = 0;
             break;
         }
-        float w_size = sizeW[i][0];
-        int w_sieze_count = sizeW[i][1];
-        printf("%.1f, %d\n", w_size / 2, w_sieze_count);
-        fprintf(fp, "%.1f, %d\n", w_size / 2, w_sieze_count);
     }
-    fprintf(fp, "read\n");
     for (int i = 0; i < len; i++)
     {
-        if (sizeR[i][0] == 0)
+        if (arr[i][0] == 0)
         {
-            flag_r = 0;
             break;
         }
-        float r_size = sizeR[i][0];
-        int r_sieze_count = sizeR[i][1];
-        printf("%.1f, %d\n", r_size/2, r_sieze_count);
-        fprintf(fp, "%.1f, %d\n", r_size/2, r_sieze_count);
+        printf("%d, %d\n", arr[i][0], arr[i][2]);
+        fprintf(fp, "%d, %d\n", arr[i][0], arr[i][2]);
     }
-    
-    printf("flag_r %d  flag_w %d\n", flag_r, flag_w);
 
     fclose(fp);
 
