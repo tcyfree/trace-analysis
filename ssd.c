@@ -51,13 +51,11 @@ int main(int argc, char *argv[])
     //*********************************************
     long filepoint; //文件指针偏移量
     char buffer[200];
-    int len = 600000;
-    unsigned int arr[len][3]; 
+    int len = 4;
+    unsigned int arr[len]; 
     for (int i = 0; i < len; i++)
     {
-        arr[i][0] = 0;
-        arr[i][1] = 0;
-        arr[i][2] = 0;
+        arr[i] = 0;
     }
     int device, size, ope, large_lsn;
     int priority;
@@ -82,6 +80,8 @@ int main(int argc, char *argv[])
     fprintf(fp, "\n");
     fseek(ssd->tracefile, 0, SEEK_SET);
     int length = 0;
+    int exit = 0;
+    // 1. read/write once；2. only read；3. only write; 4. mix
     while (!feof(ssd->tracefile) && length < len)
     {
         filepoint = ftell(ssd->tracefile);
@@ -89,48 +89,87 @@ int main(int argc, char *argv[])
         sscanf(buffer, "%lld %d %d %d %d %d", &time_t, &device, &lsn, &size, &ope, &priority); //按照I/O格式将每行读取的内容中的参数读到time_t，device等中
         // printf("%lld  %d %d %d %d %d\n", time_t, device, lsn, size, ope, priority);
         // 1为读 0为写
-        int exit = 0;
-        for (int i = 0; i < len; i++)
+        exit = 0;
+        struct page_type *page_type = NULL;
+        page_type = (struct page_type *)malloc(sizeof(struct page_type));
+        alloc_assert(page_type, "page_type");
+        if (ssd->page_type_tail == NULL)
         {
-            if (arr[i][0] == 0)
-            {
-                break;
-            }
-            if (arr[i][0] == lsn)
-            {
-                exit = 1;
-                if (ope == 1 && arr[i][1] == 1 && arr[i][2] == 1)
-                {
-                    arr[i][2] = 2;
-                }
-                else if (ope == 0 && arr[i][1] == 0 && arr[i][2] == 1)
-                {
-                    arr[i][2] = 3;
-                }
-                else if (arr[i][2] != 4)
-                {
-                    arr[i][2] = 4;
-                }
-                break;
-            }
-    
+            page_type->ope = ope;
+            page_type->type = 1;
+            page_type->lsn = lsn;
+            page_type->next = NULL;
+            ssd->page_type_tail = page_type;
+            ssd->page_type_head = page_type;
         }
-        if (!exit)
+        else
         {
-            arr[length][0] = lsn;
-            arr[length][1] = ope; // 可能是1/0，ssdsim有预处理解决读问题
-            arr[length][2] = 1;
-            length++;
+            struct page_type *type = ssd->page_type_head;
+            //该lsn是否已经存在在队了
+            while (type)
+            {
+                if (type->lsn == lsn)
+                {
+                    exit = 1;
+                    if (ope == 1 && type->ope == 1 && type->type == 1)
+                    {
+                        type->type = 2;
+                    }
+                    else if (ope == 0 && type->ope == 0 && type->type == 1)
+                    {
+                        type->type = 3;
+                    }
+                    else if (type->type != 4)
+                    {
+                        // printf("%ld, %d\n", type->lsn, type->type);
+                        type->type = 4;
+                    }
+                    break;
+                }
+                type = type->next;
+            }
+            if (exit == 0)
+            {
+                page_type->ope = ope;
+                page_type->type = 1;
+                page_type->lsn = lsn;
+                page_type->next = NULL;
+                ssd->page_type_tail->next = page_type;
+                ssd->page_type_tail = page_type;
+            }
         }
     }
-    for (int i = 0; i < len; i++)
+    struct page_type *type = ssd->page_type_head;
+    while (type)
     {
-        if (arr[i][0] == 0)
+        printf("%ld, %d\n", type->lsn, type->type);
+        fprintf(fp, "%ld, %d\n", type->lsn, type->type);
+        type = type->next;
+    }
+
+    // 统计这4类page各自的数量
+    type = ssd->page_type_head;
+    while (type)
+    {
+        if(type->type == 1) 
         {
-            break;
+            arr[0]++;
+        } else if (type->type == 2) 
+        {
+            arr[1]++;
+        } else if (type->type == 3) 
+        {
+            arr[2]++;
+        } else if (type->type == 4) 
+        {
+            arr[3]++;
         }
-        printf("%ld, %d\n", arr[i][0], arr[i][2]);
-        fprintf(fp, "%ld, %d\n", arr[i][0], arr[i][2]);
+        type = type->next;
+    }
+    for (int i = 0; i < 4; i++)
+    {
+        printf("%d, %d\n", i, arr[i]);
+        fprintf(fp, "%d, %d\n", i, arr[i]);
     }
 
     fclose(fp);

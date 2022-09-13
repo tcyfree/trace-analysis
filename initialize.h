@@ -171,9 +171,21 @@ struct ac_time_characteristics
     int tPROG_M;   //program time for MSB page
 }ac_timing;        //用来记录闪存的时序参数
 
+/**
+ * @brief 数据类型
+ * 
+ */
+struct page_type{
+	unsigned long long lsn;                  //这里表示该子请求的逻辑页号（该子请求的目标地址）
+	unsigned int ope;                  //次数
+	unsigned int type;                  //次数
+	struct page_type *next;
+};
 
 struct ssd_info
 {
+    struct page_type *page_type_head;
+	struct page_type *page_type_tail;
     double ssd_energy;                   //SSD的能耗，是时间和芯片数的函数,能耗因子
     int64_t current_time;                //记录系统时间（与channel、chip中的下一状态预计时间比较，可以得到channel、chip中新的当前状态）
     int64_t next_request_time;
