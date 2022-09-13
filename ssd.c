@@ -82,7 +82,7 @@ int main(int argc, char *argv[])
     int length = 0;
     int exit = 0;
     // 1. read/write once；2. only read；3. only write; 4. mix
-    while (!feof(ssd->tracefile) && length < len)
+    while (!feof(ssd->tracefile))
     {
         filepoint = ftell(ssd->tracefile);
         fgets(buffer, 200, ssd->tracefile);                                                    //从trace文件中读取一行内容至缓冲区
@@ -95,6 +95,7 @@ int main(int argc, char *argv[])
         alloc_assert(page_type, "page_type");
         if (ssd->page_type_tail == NULL)
         {
+            length++;
             page_type->ope = ope;
             page_type->type = 1;
             page_type->lsn = lsn;
@@ -110,6 +111,7 @@ int main(int argc, char *argv[])
             {
                 if (type->lsn == lsn)
                 {
+                    printf("length:%d\n",length);
                     exit = 1;
                     if (ope == 1 && type->ope == 1 && type->type == 1)
                     {
@@ -121,7 +123,7 @@ int main(int argc, char *argv[])
                     }
                     else if (type->type != 4)
                     {
-                        // printf("%ld, %d\n", type->lsn, type->type);
+                        printf("%ld, %d\n", type->lsn, type->type);
                         type->type = 4;
                     }
                     break;
@@ -130,6 +132,7 @@ int main(int argc, char *argv[])
             }
             if (exit == 0)
             {
+                length++;
                 page_type->ope = ope;
                 page_type->type = 1;
                 page_type->lsn = lsn;
