@@ -156,6 +156,11 @@ int main(int argc, char *argv[])
     {
         if(type->type == 1) 
         {
+            // only read once
+            if (type->ope == 1)
+            {
+                continue;
+            }
             arr[0]++;
         } else if (type->type == 2) 
         {
