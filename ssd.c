@@ -143,15 +143,14 @@ int main(int argc, char *argv[])
         }
     }
     struct page_type *type = ssd->page_type_head;
-    while (type)
-    {
-        printf("%ld, %d\n", type->lsn, type->type);
-        fprintf(fp, "%ld, %d\n", type->lsn, type->type);
-        type = type->next;
-    }
+    // while (type)
+    // {
+    //     printf("%ld, %d\n", type->lsn, type->type);
+    //     fprintf(fp, "%ld, %d\n", type->lsn, type->type);
+    //     type = type->next;
+    // }
 
     // 统计这4类page各自的数量
-    type = ssd->page_type_head;
     while (type)
     {
         if(type->type == 1) 
@@ -159,6 +158,7 @@ int main(int argc, char *argv[])
             // only read once
             if (type->ope == 1)
             {
+                type = type->next;
                 continue;
             }
             arr[0]++;
