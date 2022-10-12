@@ -174,7 +174,7 @@ int main(int argc, char *argv[])
     //     fprintf(fp, "%d, %d\n", sizeR[i][0], sizeR[i][1]);
     // }
     
-    printf("flag_r %d  flag_w %d\n", flag_r, flag_w);
+    // printf("flag_r %d  flag_w %d\n", flag_r, flag_w);
 
     fclose(fp);
 
