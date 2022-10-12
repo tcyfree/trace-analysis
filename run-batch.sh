@@ -6,7 +6,7 @@ function runTrace() {
   cat $1 | while read line
   do
   echo $line
-    ./ssd 1  ../trace2/lun/$line   
+    ./ssd 1  ../trace2/msrc/$line   
   done 
 }
 runTrace $runList

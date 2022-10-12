@@ -80,7 +80,7 @@ int main(int argc, char *argv[])
     char *ret = strrchr(ssd->tracefilename, '/') + 1;
     //打开文件
     char tracename[16];
-    sprintf(tracename,"%s%s", "trace-analysis/", "overview.csv");
+    sprintf(tracename,"%s%s", "trace-analysis/", "overview-msrc.csv");
     fp = fopen(tracename, "a");
     fprintf(fp, ret);
     fprintf(fp, ",");
