@@ -44,10 +44,9 @@ int main(int argc, char *argv[])
     printf("Read parameters to the main function.\n");
     sscanf(argv[1], "%d", &sTIMES);
     // sscanf(argv[2], "%d", &speed_up);
-    sscanf(argv[2], "%s", &(ssd->tracefilename));
-    printf("Running trace file: %s.\n", ssd->tracefilename);
     //*****************************************************
     ssd = initiation(ssd);
+    sscanf(argv[2], "%s", &(ssd->tracefilename));
     //*********************************************
     long filepoint; //文件指针偏移量
     char buffer[200];
@@ -69,7 +68,7 @@ int main(int argc, char *argv[])
     int64_t time_t = 0; //请求到达时间（即时间戳）
     unsigned int lsn = 0;
     ssd->tracefile = fopen(ssd->tracefilename, "r");
-    printf("Running trace file: %s.\n", ssd->tracefilename);
+    printf("Running trace file123: %s.\n", ssd->tracefilename);
     if (ssd->tracefile == NULL)
     {
         printf("the trace file can't open\n");
