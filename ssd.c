@@ -18,6 +18,35 @@ Hao Luo         2011/01/01        2.0           Change               luohao13568
 
 #include "ssd.h"
 
+/**
+ * @brief Get the aged ratio object
+ * 
+ * @param ssd 
+ * @return double
+ */
+double get_aged_ratio(struct ssd_info *ssd){
+	int64_t free_page_num = 0;
+	int cn_id, cp_id, di_id, pl_id;
+	printf("Enter get_aged_ratio.\n");
+	for(cn_id=0;cn_id<ssd->parameter->channel_number;cn_id++){
+		//printf("channel %d\n", cn_id);
+		for(cp_id=0;cp_id<ssd->parameter->chip_channel[0];cp_id++){
+			//printf("chip %d\n", cp_id);
+			for(di_id=0;di_id<ssd->parameter->die_chip;di_id++){
+				//printf("die %d\n", di_id);
+				for(pl_id=0;pl_id<ssd->parameter->plane_die;pl_id++){
+					free_page_num += ssd->channel_head[cn_id].chip_head[cp_id].die_head[di_id].plane_head[pl_id].free_page;
+				}
+			}
+		}
+	}
+	int page_num = ssd->parameter->page_block * ssd->parameter->block_plane * ssd->parameter->plane_die * ssd->parameter->die_chip * ssd->parameter->chip_num;
+	printf("page_num:%d\n", page_num);
+	printf("free_page_num:%d\n", free_page_num);
+	printf("aged ratio: %.4f\n", (double)(page_num - free_page_num)/page_num);
+	return (double)(page_num - free_page_num)/page_num;
+}
+
 /********************************************************************************************************************************
 1，main函数中initiatio()函数用来初始化ssd,；2，make_aged()函数使SSD成为aged，aged的ssd相当于使用过一段时间的ssd，里面有失效页，
 non_aged的ssd是新的ssd，无失效页，失效页的比例可以在初始化参数中设置；3，pre_process_page()函数提前扫一遍读请求，把读请求
@@ -47,6 +76,12 @@ int main(int argc, char *argv[])
     //*****************************************************
     ssd = initiation(ssd);
     sscanf(argv[2], "%s", &(ssd->tracefilename));
+    //获取预处理后已占百分比
+    double pre_read,pre_all;
+    pre_process_page(ssd); 
+    pre_read = get_aged_ratio(ssd);
+    // pre_process_write_read(ssd); 
+    // pre_all = get_aged_ratio(ssd);
     //*********************************************
     long filepoint; //文件指针偏移量
     char buffer[200];
@@ -80,7 +115,7 @@ int main(int argc, char *argv[])
     char *ret = strrchr(ssd->tracefilename, '/') + 1;
     //打开文件
     char tracename[16];
-    sprintf(tracename,"%s%s", "trace-analysis/", "overview-msrc.csv");
+    sprintf(tracename,"%s%s", "trace-analysis/", "overview-lun.csv");
     fp = fopen(tracename, "a");
     fprintf(fp, ret);
     fprintf(fp, ",");
@@ -146,7 +181,7 @@ int main(int argc, char *argv[])
     // fprintf(fp, "write avg size(KB): %.2f\n", (double)totalReadSize / totalReadReq / 2);
     // fprintf(fp, "read avg size(KB): %.2f\n", (double)totalWriteSize / totalWriteReq / 2);
 
-    fprintf(fp, "%d, %.4f, %.2f, %.2f, %d, %d\n", totalReadReq + totalWriteReq, (float)totalWriteReq/(totalReadReq + totalWriteReq), (double)totalReadSize / totalReadReq / 2, (double)totalWriteSize / totalWriteReq / 2, maxWriteSize / 2, maxReadSize / 2);
+    fprintf(fp, "%d, %.4f, %.2f, %.2f, %d, %d, %.4f\n", totalReadReq + totalWriteReq, (float)totalWriteReq/(totalReadReq + totalWriteReq), (double)totalReadSize / totalReadReq / 2, (double)totalWriteSize / totalWriteReq / 2, maxWriteSize / 2, maxReadSize / 2, pre_read);
 
     int flag_r = 1;
     int flag_w = 1;

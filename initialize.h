@@ -282,6 +282,7 @@ struct ssd_info
 
     FILE * outputfile;
     FILE * tracefile;
+    FILE * tracefile2;
     FILE * statisticfile;
     FILE * statisticfile2;
 
