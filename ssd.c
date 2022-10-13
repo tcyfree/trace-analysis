@@ -44,10 +44,10 @@ int main(int argc, char *argv[])
     printf("Read parameters to the main function.\n");
     sscanf(argv[1], "%d", &sTIMES);
     // sscanf(argv[2], "%d", &speed_up);
-    sscanf(argv[2], "%s", &(ssd->tracefilename));
-    printf("Running trace file: %s.\n", ssd->tracefilename);
     //*****************************************************
     ssd = initiation(ssd);
+    sscanf(argv[2], "%s", &(ssd->tracefilename));
+    printf("Running trace file: %s.\n", ssd->tracefilename);
     //*********************************************
     long filepoint; //文件指针偏移量
     char buffer[200];
@@ -69,7 +69,6 @@ int main(int argc, char *argv[])
     int64_t time_t = 0; //请求到达时间（即时间戳）
     unsigned int lsn = 0;
     ssd->tracefile = fopen(ssd->tracefilename, "r");
-    printf("Running trace file: %s.\n", ssd->tracefilename);
     if (ssd->tracefile == NULL)
     {
         printf("the trace file can't open\n");
@@ -138,8 +137,8 @@ int main(int argc, char *argv[])
     }
 
     // caculate characterizes for trace
-    // fprintf(fp, "all of req: %d\n", totalReadReq + totalWriteReq);
-    // fprintf(fp, "write ratio: %.4f\n", (float)totalWriteReq/(totalReadReq + totalWriteReq));
+    fprintf(fp, "all of req: %d\n", totalReadReq + totalWriteReq);
+    fprintf(fp, "write ratio: %.4f\n", (float)totalWriteReq/(totalReadReq + totalWriteReq));
     // fprintf(fp, "write avg size(KB): %.2f\n", (double)totalReadSize / totalReadReq / 2);
     // fprintf(fp, "read avg size(KB): %.2f\n", (double)totalWriteSize / totalWriteReq / 2);
 
