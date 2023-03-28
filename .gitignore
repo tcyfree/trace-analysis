@@ -1,3 +1,7 @@
 *.csv
 !trace-analysis/*.csv
 .vscode
+*.o
+statistic10.dat
+ex.out
+ssd
