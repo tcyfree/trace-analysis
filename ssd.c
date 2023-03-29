@@ -127,6 +127,7 @@ int main(int argc, char *argv[])
     unsigned int maxWriteSize = 0;
     unsigned int maxReadSize = 0;
     int ssdup = 0;
+    int ssdupSize = 0;
     while (!feof(ssd->tracefile))
     {
         filepoint = ftell(ssd->tracefile);
@@ -161,6 +162,7 @@ int main(int argc, char *argv[])
             if (size >= 128)
             {
                 ssdup++;
+                ssdupSize += size;
             }
             
             maxWriteSize = size > maxWriteSize ? size : maxWriteSize;
@@ -187,7 +189,7 @@ int main(int argc, char *argv[])
     // fprintf(fp, "write avg size(KB): %.2f\n", (double)totalReadSize / totalReadReq / 2);
     // fprintf(fp, "read avg size(KB): %.2f\n", (double)totalWriteSize / totalWriteReq / 2);
 
-    fprintf(fp, "%d, %.4f, %.2f, %.2f, %d, %d, %.4f, %.4f\n", totalReadReq + totalWriteReq, (float)totalWriteReq/(totalReadReq + totalWriteReq), (double)totalReadSize / totalReadReq / 2, (double)totalWriteSize / totalWriteReq / 2, maxWriteSize / 2, maxReadSize / 2, pre_read, (float)ssdup/totalWriteReq);
+    fprintf(fp, "%d, %.4f, %.2f, %.2f, %d, %d, %.4f, %.4f\n", totalReadReq + totalWriteReq, (float)totalWriteReq/(totalReadReq + totalWriteReq), (double)totalReadSize / totalReadReq / 2, (double)totalWriteSize / totalWriteReq / 2, maxWriteSize / 2, maxReadSize / 2, pre_read, (float)ssdupSize/totalWriteSize);
 
     int flag_r = 1;
     int flag_w = 1;
