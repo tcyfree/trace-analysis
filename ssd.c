@@ -159,11 +159,11 @@ int main(int argc, char *argv[])
         {
             totalWriteReq++;
             totalWriteSize += size;
-            if (size >= 128)
-            {
-                ssdup++;
-                ssdupSize += size;
-            }
+            // if (size >= 128)
+            // {
+            //     ssdup++;
+            //     ssdupSize += size;
+            // }
             
             maxWriteSize = size > maxWriteSize ? size : maxWriteSize;
             for (int i = 0; i < len; i++)
@@ -189,7 +189,7 @@ int main(int argc, char *argv[])
     // fprintf(fp, "write avg size(KB): %.2f\n", (double)totalReadSize / totalReadReq / 2);
     // fprintf(fp, "read avg size(KB): %.2f\n", (double)totalWriteSize / totalWriteReq / 2);
 
-    fprintf(fp, "%d, %.4f, %.2f, %.2f, %d, %d, %.4f, %.4f\n", totalReadReq + totalWriteReq, (float)totalWriteReq/(totalReadReq + totalWriteReq), (double)totalReadSize / totalReadReq / 2, (double)totalWriteSize / totalWriteReq / 2, maxWriteSize / 2, maxReadSize / 2, pre_read, (float)ssdupSize/totalWriteSize);
+    fprintf(fp, "%d, %.4f, %.2f, %.2f, %d, %d, %.4f, %.4f, %d, %d\n", totalReadReq + totalWriteReq, (float)totalWriteReq/(totalReadReq + totalWriteReq), (double)totalReadSize / totalReadReq / 2, (double)totalWriteSize / totalWriteReq / 2, maxWriteSize / 2, maxReadSize / 2, pre_read, (float)ssdupSize/totalWriteSize, totalReadSize, totalWriteSize);
 
     int flag_r = 1;
     int flag_w = 1;
