@@ -101,6 +101,12 @@ int main(int argc, char *argv[])
     int device, size, ope, large_lsn;
     int priority;
     int64_t time_t = 0; //请求到达时间（即时间戳）
+    int64_t last_time_t = 0; //上一次请求到达时间（即时间戳）
+    int64_t last_time_r = 0; //上一次请求到达时间（即时间戳）
+    int64_t last_time_w = 0; //上一次请求到达时间（即时间戳）
+    int64_t all_time = 0; //上一次请求到达时间（即时间戳）
+    int64_t all_time_r = 0; //上一次请求到达时间（即时间戳）
+    int64_t all_time_w = 0; //上一次请求到达时间（即时间戳）
     unsigned int lsn = 0;
     ssd->tracefile = fopen(ssd->tracefilename, "r");
     printf("Running trace file123: %s.\n", ssd->tracefilename);
@@ -115,7 +121,7 @@ int main(int argc, char *argv[])
     char *ret = strrchr(ssd->tracefilename, '/') + 1;
     //打开文件
     char tracename[16];
-    sprintf(tracename,"%s%s", "trace-analysis/", "overview-msrc.csv");
+    sprintf(tracename,"%s%s", "trace-analysis/", "overview-interval.csv");
     fp = fopen(tracename, "a");
     fprintf(fp, ret);
     fprintf(fp, ",");
@@ -128,57 +134,53 @@ int main(int argc, char *argv[])
     unsigned int maxReadSize = 0;
     int ssdup = 0;
     int ssdupSize = 0;
+    int first_access = 1;
+    int first_access_r = 1;
+    int first_access_w = 1;
     while (!feof(ssd->tracefile))
     {
         filepoint = ftell(ssd->tracefile);
         fgets(buffer, 200, ssd->tracefile);                                                    //从trace文件中读取一行内容至缓冲区
         sscanf(buffer, "%lld %d %d %d %d %d", &time_t, &device, &lsn, &size, &ope, &priority); //按照I/O格式将每行读取的内容中的参数读到time_t，device等中
         // printf("%lld  %d %d %d %d %d\n", time_t, device, lsn, size, ope, priority);
+        if (first_access == 1)
+        {
+            last_time_t = time_t;
+            first_access = 0;
+        } else
+        {
+            all_time += time_t - last_time_t;
+            last_time_t = time_t;
+        }
+        
+        
         // 1为读 0为写
         if (ope == 1)
         {
             totalReadReq++;
-            totalReadSize += size; 
-            maxReadSize = size > maxReadSize ? size : maxReadSize;
-            for (int i = 0; i < len; i++)
+            if (first_access_r == 1)
             {
-                if (sizeR[i][0] == size)
-                {
-                    sizeR[i][1]++;
-                    break;
-                }
-                else if (sizeR[i][0] == 0)
-                {
-                    sizeR[i][0] = size;
-                    sizeR[i][1]++;
-                    break;
-                }
+                last_time_r = time_t;
+                first_access_r= 0;
+            }
+            else
+            {
+                all_time_r += time_t - last_time_r;
+                last_time_t = time_t;
             }
         }
         else
         {
             totalWriteReq++;
-            totalWriteSize += size;
-            // if (size >= 128)
-            // {
-            //     ssdup++;
-            //     ssdupSize += size;
-            // }
-            
-            maxWriteSize = size > maxWriteSize ? size : maxWriteSize;
-            for (int i = 0; i < len; i++)
+            if (first_access_w == 1)
             {
-                if (sizeW[i][0] == size)
-                {
-                    sizeW[i][1]++;
-                    break;
-                }
-                else if (sizeW[i][0] == 0)
-                {
-                    sizeW[i][0] = size;
-                    sizeW[i][1]++;
-                    break;
-                }
+                last_time_w = time_t;
+                first_access_w = 0;
+            }
+            else
+            {
+                all_time_w += time_t - last_time_w;
+                last_time_t = time_t;
             }
         }
     }
@@ -189,35 +191,7 @@ int main(int argc, char *argv[])
     // fprintf(fp, "write avg size(KB): %.2f\n", (double)totalReadSize / totalReadReq / 2);
     // fprintf(fp, "read avg size(KB): %.2f\n", (double)totalWriteSize / totalWriteReq / 2);
 
-    fprintf(fp, "%d, %.4f, %.2f, %.2f, %d, %d, %.4f, %.4f, %d, %d\n", totalReadReq + totalWriteReq, (float)totalWriteReq/(totalReadReq + totalWriteReq), (double)totalReadSize / totalReadReq / 2, (double)totalWriteSize / totalWriteReq / 2, maxWriteSize / 2, maxReadSize / 2, pre_read, (float)ssdupSize/totalWriteSize, totalReadSize, totalWriteSize);
-
-    int flag_r = 1;
-    int flag_w = 1;
-    // fprintf(fp, "write\n");
-    // for (int i = 0; i < len; i++)
-    // {
-    //     if (sizeW[i][0] == 0)
-    //     {
-    //         flag_w = 0;
-    //         break;
-    //     }
-    //     printf("%d %d\n", sizeW[i][0], sizeW[i][1]);
-    //     fprintf(fp, "%d, %d\n", sizeW[i][0], sizeW[i][1]);
-    // }
-    // fprintf(fp, "read\n");
-    // for (int i = 0; i < len; i++)
-    // {
-    //     if (sizeR[i][0] == 0)
-    //     {
-    //         flag_r = 0;
-    //         break;
-    //     }
-        
-    //     printf("%d %d\n", sizeR[i][0], sizeR[i][1]);
-    //     fprintf(fp, "%d, %d\n", sizeR[i][0], sizeR[i][1]);
-    // }
-    
-    // printf("flag_r %d  flag_w %d\n", flag_r, flag_w);
+    fprintf(fp, "%.4f, %.4f, %.4f\n", (float)all_time/(totalReadReq + totalWriteReq), (float)all_time_r/(totalReadReq), (float)all_time_w/(totalWriteReq));
 
     fclose(fp);
 
